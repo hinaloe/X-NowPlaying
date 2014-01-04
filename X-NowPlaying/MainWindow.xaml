@@ -1,0 +1,12 @@
+﻿<Window x:Class="X_NowPlaying.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="X-NowPlaying" Height="130" Width="300" WindowStyle="ToolWindow">
+    <Grid>
+        <Image x:Name="Jacket" Height="60" Width="60" Margin="5,5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock x:Name="NowSong" Text="初音ミクの消失 (LONG VERSION)" Margin="70,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock x:Name="NowAlbum" Text="初音ミクの消失" Margin="70,25,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock x:Name="NowEditor" Text="cosMo@暴走P" Margin="70,45,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Button Content="Tweet" Click="Button_Click" Height="20" Width="100" Margin="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+    </Grid>
+</Window>

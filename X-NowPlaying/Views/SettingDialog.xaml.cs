@@ -12,8 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using X_NowPlaying.Views;
-
 namespace X_NowPlaying.Views
 {
     /* 
@@ -25,18 +23,23 @@ namespace X_NowPlaying.Views
      */
 
     /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
+    /// SettingDialog.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SettingDialog : Window
     {
-        public MainWindow()
+        public SettingDialog()
         {
             InitializeComponent();
-
             this.Loaded += (sender, e) =>
             {
-                ((X_NowPlaying.ViewModels.MainWindowViewModel)this.DataContext).Window = this;
+                ((X_NowPlaying.ViewModels.SettingDialogViewModel)this.DataContext).Dialog = this;
             };
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

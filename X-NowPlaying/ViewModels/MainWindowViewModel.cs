@@ -18,8 +18,16 @@ using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
 using X_NowPlaying.Models;
+using X_NowPlaying.Views;
 using X_NowPlaying.Win32;
 using X_NowPlaying.Internal;
+
+using Dolphin.Croudia;
+using Dolphin.Croudia.Object;
+using Dolphin.Croudia.Rest;
+
+using CoreTweet;
+using CoreTweet.Rest;
 
 namespace X_NowPlaying.ViewModels
 {
@@ -28,15 +36,41 @@ namespace X_NowPlaying.ViewModels
         private Timer timer;
         private List<XObject> objects;
 
+        public MainWindow Window;
+
+        public AccountProvider CroudiaAccountProvider;
+        public Tokens TwitterTokens;
+
         public MainWindowViewModel()
         {
+            this.IsTopmost = Settings.IsTopLevel;
             this.Title = "X-NowPlaying";
+            this.Music = "Loading...";
+            this.Album = "Loading...";
+            this.Artist = "Loading...";
+
+            //for Croudia
+            this.CroudiaAccountProvider = new AccountProvider();
+            this.CroudiaAccountProvider.ConsumerKey = Settings.CroudiaConsumerKey;
+            this.CroudiaAccountProvider.ConsumerSecret = Settings.CroudiaConsumerSecret;
+            if(!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
+            {
+                this.CroudiaAccountProvider.AccessToken = Settings.CroudiaAccessToken;
+                this.CroudiaAccountProvider.RefreshToken = Settings.CroudiaRefreshToken;
+            }
+
+            //for Twitter
+            if(!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            {
+                this.TwitterTokens = Tokens.Create(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret, Settings.TwitterAccessToken, Settings.TwitterAccessTokenSecet);
+                Console.WriteLine("hoge");
+            }
         }
 
         public void Initialize()
         {
             this.Title = "X-NowPlaying - Loading...";
-            this.JucketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
+            this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
             objects = ApplicationData.Load();
             if(objects == null)
             {
@@ -58,17 +92,19 @@ namespace X_NowPlaying.ViewModels
                             DispatcherHelper.UIDispatcher.Invoke(new Action(() =>
                                 {
                                     found = true;
-                                    this.Title = "X-NowPlaying - ♪" + o.ObjectName;
+                                    this.Title = "X-NowPlaying - " + o.ObjectName;
                                     this.Music = o.ObjectName;
                                     this.Album = o.Object206;
                                     this.Artist = o.Object201;
                                     if (!String.IsNullOrEmpty(o.Object202))
                                     {
-                                        this.JucketImage = new BitmapImage(new Uri(o.Object202));
+                                        this.JacketImage = new BitmapImage(new Uri(o.Object202));
+                                        this.JacketImageStr = o.Object202;
                                     }
                                     else
                                     {
-                                        this.JucketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
+                                        this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
+                                        this.JacketImageStr = "";
                                     }
                                 }));
                         }
@@ -79,6 +115,132 @@ namespace X_NowPlaying.ViewModels
                 }
             }
         }
+
+        public string GenerateText()
+        {
+            string tweet = Settings.TextFormat;
+            tweet = tweet.Replace("%{song}", this.Music);
+            tweet = tweet.Replace("%{album}", this.Album);
+            tweet = tweet.Replace("%{artist}", this.Artist);
+            return tweet;
+        }
+
+
+        #region OpenSettingCommand
+        private ViewModelCommand _OpenSettingCommand;
+
+        public ViewModelCommand OpenSettingCommand
+        {
+            get
+            {
+                if (_OpenSettingCommand == null)
+                {
+                    _OpenSettingCommand = new ViewModelCommand(OpenSetting);
+                }
+                return _OpenSettingCommand;
+            }
+        }
+
+        public void OpenSetting()
+        {
+            SettingDialog dialog = new SettingDialog();
+            SettingDialogViewModel viewmodel = new SettingDialogViewModel(this);
+            dialog.DataContext = viewmodel;
+            dialog.Owner = this.Window;
+            dialog.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
+            dialog.ShowDialog();
+        }
+        #endregion
+
+
+        #region TweetCommand
+        private ViewModelCommand _TweetCommand;
+
+        public ViewModelCommand TweetCommand
+        {
+            get
+            {
+                if (_TweetCommand == null)
+                {
+                    _TweetCommand = new ViewModelCommand(Tweet, CanTweet);
+                }
+                return _TweetCommand;
+            }
+        }
+
+        public bool CanTweet()
+        {
+            if(!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public async void Tweet()
+        {
+            await Task.Run(() =>
+                {
+                    string tweet = this.GenerateText();
+                    if(tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr))
+                    {
+                        tweet = tweet.Replace("%{image}", "");
+                        this.TwitterTokens.Statuses.UpdateWithMedia(status => tweet, media => System.IO.File.OpenRead(this.JacketImageStr));
+                    }
+                    else
+                    {
+                        tweet = tweet.Replace("%{image}", "");
+                        this.TwitterTokens.Statuses.Update(status => tweet);
+                    }
+                });
+        }
+        #endregion
+
+
+        #region WhisperCommand
+        private ViewModelCommand _WhisperCommand;
+
+        public ViewModelCommand WhisperCommand
+        {
+            get
+            {
+                if (_WhisperCommand == null)
+                {
+                    _WhisperCommand = new ViewModelCommand(Whisper, CanWhisper);
+                }
+                return _WhisperCommand;
+            }
+        }
+
+        public bool CanWhisper()
+        {
+            if (!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+        public async void Whisper()
+        {
+            await Task.Run(() =>
+                {
+                    string tweet = this.GenerateText();
+                    if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr))
+                    {
+                        System.Windows.MessageBox.Show(this.JacketImageStr);
+                        tweet = tweet.Replace("%{image}", "");
+                        this.CroudiaAccountProvider.UpdateStatusWithMedia(tweet, this.JacketImageStr);
+                    }
+                    else
+                    {
+                        tweet = tweet.Replace("%{image}", "");
+                        this.CroudiaAccountProvider.UpdateStatus(tweet);
+                    }
+                });
+        }
+        #endregion
 
 
         #region Title変更通知プロパティ
@@ -99,18 +261,54 @@ namespace X_NowPlaying.ViewModels
         #endregion
 
 
-        #region JucketImage変更通知プロパティ
-        private ImageSource _JucketImage;
+        #region IsTopmost変更通知プロパティ
+        private Boolean _IsTopmost;
 
-        public ImageSource JucketImage
+        public Boolean IsTopmost
         {
             get
-            { return _JucketImage; }
+            { return _IsTopmost; }
             set
             { 
-                if (_JucketImage == value)
+                if (_IsTopmost == value)
                     return;
-                _JucketImage = value;
+                _IsTopmost = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region JacketImage変更通知プロパティ
+        private ImageSource _JacketImage;
+
+        public ImageSource JacketImage
+        {
+            get
+            { return _JacketImage; }
+            set
+            {
+                if (_JacketImage == value)
+                    return;
+                _JacketImage = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region JacketImageStr変更通知プロパティ
+        private string _JacketImageStr;
+
+        public string JacketImageStr
+        {
+            get
+            { return _JacketImageStr; }
+            set
+            { 
+                if (_JacketImageStr == value)
+                    return;
+                _JacketImageStr = value;
                 RaisePropertyChanged();
             }
         }

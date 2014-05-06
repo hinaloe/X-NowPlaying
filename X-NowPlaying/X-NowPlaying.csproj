@@ -35,6 +35,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CoreTweet">
+      <HintPath>..\packages\CoreTweet.0.3.0\lib\net45\CoreTweet.dll</HintPath>
+    </Reference>
+    <Reference Include="Dolphin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Dolphin.dll</HintPath>
+    </Reference>
     <Reference Include="Livet">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>InfrastructureAssemblies\Livet.dll</HintPath>
@@ -44,6 +51,10 @@
       <HintPath>InfrastructureAssemblies\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -69,8 +80,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Internal\ApplicationData.cs" />
+    <Compile Include="Internal\ServiceType.cs" />
     <Compile Include="Internal\XObject.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="ViewModels\AuthorizeWindowViewModel.cs" />
+    <Compile Include="ViewModels\SettingDialogViewModel.cs" />
+    <Compile Include="Views\AuthorizeWindow.xaml.cs">
+      <DependentUpon>AuthorizeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingDialog.xaml.cs">
+      <DependentUpon>SettingDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Win32\WinApi.cs" />
+    <Page Include="Views\AuthorizeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,6 +110,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\SettingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -104,6 +133,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -116,6 +147,9 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Resource Include="Resources\cat_black_32.png" />
+    <Resource Include="Resources\bird_blue_32.png" />
+    <Resource Include="Resources\settings20.png" />
     <Resource Include="Resources\insert2.png" />
     <Resource Include="Resources\microphone52.png" />
     <Resource Include="Resources\music111.png" />

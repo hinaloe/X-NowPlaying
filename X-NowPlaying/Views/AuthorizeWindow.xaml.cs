@@ -12,8 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using X_NowPlaying.Views;
-
 namespace X_NowPlaying.Views
 {
     /* 
@@ -25,18 +23,13 @@ namespace X_NowPlaying.Views
      */
 
     /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
+    /// AuthorizeWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class AuthorizeWindow : Window
     {
-        public MainWindow()
+        public AuthorizeWindow()
         {
             InitializeComponent();
-
-            this.Loaded += (sender, e) =>
-            {
-                ((X_NowPlaying.ViewModels.MainWindowViewModel)this.DataContext).Window = this;
-            };
         }
     }
 }

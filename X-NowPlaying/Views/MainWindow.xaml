@@ -6,8 +6,10 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:X_NowPlaying.Views"
         xmlns:vm="clr-namespace:X_NowPlaying.ViewModels"
-        Title="{Binding Title}" Height="150" Width="317"
-        WindowStyle="ToolWindow">
+        Title="{Binding Title}" Height="160" Width="317"
+        WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+        Topmost="{Binding IsTopmost}">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -23,25 +25,47 @@
     </i:Interaction.Triggers>
 
     <Grid>
-        <Image Source="{Binding JucketImage}" Height="64" Width="64" Margin="10,10,0,0"
+        <Image Source="{Binding JacketImage}" Height="64" Width="64" Margin="10,10,0,0"
                HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <Image Source="../Resources/musical.png" Height="16" Width="16" Margin="80,10,0,0"
                HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Music}" Height="20"
-                   Margin="105,8,10,0" VerticalAlignment="Top"
+        <TextBlock Text="{Binding Music}" ToolTip="{Binding Music}"
+                   Height="20" Margin="105,8,10,0" VerticalAlignment="Top"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="NoWrap"/>
         <Image Source="../Resources/music111.png" Height="16" Width="16" Margin="80,30,0,0"
                HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Album}" Height="20"
-                   Margin="105,28,10,0" VerticalAlignment="Top"
+        <TextBlock Text="{Binding Album}" ToolTip="{Binding Album}"
+                   Height="20" Margin="105,28,10,0" VerticalAlignment="Top"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="NoWrap"/>
         <Image Source="../Resources/microphone52.png" Height="16" Width="16" Margin="80,50,0,0"
                HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Artist}" Height="20"
-                   Margin="105,48,10,0" VerticalAlignment="Top"
+        <TextBlock Text="{Binding Artist}" ToolTip="{Binding Artist}"
+                   Height="20" Margin="105,48,10,0" VerticalAlignment="Top"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="NoWrap"/>
+        <Button Height="36" Width="36" Margin="10,75,0,0"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                BorderBrush="Transparent" Foreground="Transparent" Background="Transparent"
+                Command="{Binding OpenSettingCommand}">
+            <Image Source="../Resources/settings20.png" Height="32" Width="32" />
+        </Button>
+        <Button Height="36" Margin="50,75,140,0"
+                VerticalAlignment="Top"
+                Command="{Binding TweetCommand}">
+            <TextBlock>
+                <Image Source="../Resources/bird_blue_32.png" Height="32" Width="32" />
+                <TextBlock Foreground="Black" FontSize="18" Margin="0,-9">Tweet</TextBlock>
+            </TextBlock>
+        </Button>
+        <Button Height="36" Margin="180,75,10,0"
+                VerticalAlignment="Top"
+                Command="{Binding WhisperCommand}">
+            <TextBlock>
+                <Image Source="../Resources/cat_black_32.png" Height="32" Width="32" />
+                <TextBlock Foreground="Black" FontSize="18" Margin="0,-9">Whisper</TextBlock>
+            </TextBlock>
+        </Button>
     </Grid>
 </Window>

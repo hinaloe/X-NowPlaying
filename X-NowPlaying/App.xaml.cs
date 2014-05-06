@@ -19,6 +19,7 @@ namespace X_NowPlaying
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
+            Settings.Load();
 
             //今のところサポート予定はないです。
             //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
@@ -36,5 +37,11 @@ namespace X_NowPlaying
         //
         //    Environment.Exit(1);
         //}
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Settings.Save();
+            base.OnExit(e);
+        }
     }
 }

@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Xml;
-using System.Xml.Linq;
 
-using X_NowPlaying.X_Application;
+using Livet;
+
+using Microsoft.Win32;
 
 namespace X_NowPlaying
 {
@@ -19,65 +16,25 @@ namespace X_NowPlaying
     /// </summary>
     public partial class App : Application
     {
-        private Timer timer;
-        private MainWindow main;
-
-        public static string Format = "{0} / {1} - {2} #NowPlaying";
-
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            try
-            {
-                XElement element = XElement.Load(Directory.GetCurrentDirectory() + "/assets/config.xml");
-                var q = from p in element.Elements("Configuration")
-                        select new
-                        {
-                            Format = (string)p.Element("format")
-                        };
-                foreach(var item in q)
-                {
-                    Format = item.Format;
-                }
-            } catch (Exception)
-            {
+            DispatcherHelper.UIDispatcher = Dispatcher;
 
-            }
-
-            DataBase.Parse();
-
-            MainWindow main = new MainWindow();
-            main.Show();
-
-            this.main = main;
-
-            this.timer = new Timer(Searh, null, 0, 1000 * 10);
+            //今のところサポート予定はないです。
+            //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
         }
 
-        private void Searh(object ob)
-        {
-            Console.WriteLine("Updating...");
-            foreach (X_Application.XObject o in DataBase.Sounds)
-            {
-                try
-                {
-                    FileController.Rename(o.SoundFile, o.SoundFile);
-                }
-                catch (IOException)
-                {
-                    //now playing
-                    main.Dispatcher.Invoke(new Action(() =>
-                    {
-                        main.Update(o);
-                    }));
-                    return;
-                }
-            }
-            /*
-            main.Dispatcher.Invoke(new Action(() =>
-                {
-                    main.Update(new X_NowPlaying.X_Application.XObject("取得中...", "取得中...", "取得中...", "", ""));
-                }));
-            */
-        }
+        //集約エラーハンドラ
+        //private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        //{
+        //    //TODO:ロギング処理など
+        //    MessageBox.Show(
+        //        "不明なエラーが発生しました。アプリケーションを終了します。",
+        //        "エラー",
+        //        MessageBoxButton.OK,
+        //        MessageBoxImage.Error);
+        //
+        //    Environment.Exit(1);
+        //}
     }
 }

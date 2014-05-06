@@ -187,6 +187,8 @@ namespace X_NowPlaying.ViewModels
             dialog.Owner = this.Window;
             dialog.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             dialog.ShowDialog();
+            this.TweetCommand.RaiseCanExecuteChanged();
+            this.WhisperCommand.RaiseCanExecuteChanged();
         }
         #endregion
 

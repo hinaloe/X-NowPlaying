@@ -72,6 +72,15 @@ namespace X_NowPlaying.ViewModels
             window.Owner = this.Dialog;
             window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             window.ShowDialog();
+
+            if (String.IsNullOrEmpty(Settings.TwitterScreenName))
+            {
+                this.TwitterScreenName = "Not Connected";
+            }
+            else
+            {
+                this.TwitterScreenName = "@" + Settings.TwitterScreenName;
+            }
         }
         #endregion
 
@@ -99,6 +108,15 @@ namespace X_NowPlaying.ViewModels
             window.Owner = this.Dialog;
             window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             window.ShowDialog();
+
+            if (String.IsNullOrEmpty(Settings.CroudiaScreenName))
+            {
+                this.CroudiaScreenName = "Not Connected";
+            }
+            else
+            {
+                this.CroudiaScreenName = "@" + Settings.CroudiaScreenName;
+            }
         }
         #endregion
 

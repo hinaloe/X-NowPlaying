@@ -41,6 +41,9 @@ namespace X_NowPlaying.ViewModels
         public AccountProvider CroudiaAccountProvider;
         public Tokens TwitterTokens;
 
+        private List<List<XObject>> parallel = new List<List<XObject>>();
+        private XObject CurrentObject = null;
+
         public MainWindowViewModel()
         {
             this.IsTopmost = Settings.IsTopLevel;
@@ -63,7 +66,6 @@ namespace X_NowPlaying.ViewModels
             if(!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
             {
                 this.TwitterTokens = Tokens.Create(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret, Settings.TwitterAccessToken, Settings.TwitterAccessTokenSecet);
-                Console.WriteLine("hoge");
             }
         }
 
@@ -76,6 +78,25 @@ namespace X_NowPlaying.ViewModels
             {
                 Environment.Exit(0);
             }
+
+            //25個に分割
+            int i = 0;
+            List<XObject> list = null;
+            foreach(XObject obj in objects)
+            {
+                if(i == 25)
+                {
+                    parallel.Add(list);
+                    i = 0;
+                }
+                if(i == 0)
+                {
+                    list = new List<XObject>();
+                }
+                list.Add(obj);
+                i++;
+            }
+
             //5sec interval
             this.timer = new Timer(Update, null, 0, 1000 * 5);
         }
@@ -83,30 +104,47 @@ namespace X_NowPlaying.ViewModels
         public void Update(object _)
         {
             bool found = false;
-            foreach(XObject o in this.objects)
+            foreach(List<XObject> list in this.parallel)
             {
                 Task.Run(() =>
                     {
-                        if(WinApi.GetUsingFiles(new string[] { o.Object500 }))
+                        List<string> buf = new List<string>();
+                        foreach(XObject obj in list)
                         {
-                            DispatcherHelper.UIDispatcher.Invoke(new Action(() =>
+                            buf.Add(obj.Object500);
+                        }
+                        if(WinApi.GetUsingFiles(buf.ToArray<string>()))
+                        {
+                            foreach(XObject o in list)
+                            {
+                                if (WinApi.GetUsingFiles(new string[] { o.Object500 }))
                                 {
-                                    found = true;
-                                    this.Title = "X-NowPlaying - " + o.ObjectName;
-                                    this.Music = o.ObjectName;
-                                    this.Album = o.Object206;
-                                    this.Artist = o.Object201;
-                                    if (!String.IsNullOrEmpty(o.Object202))
+                                    DispatcherHelper.UIDispatcher.Invoke(new Action(() =>
                                     {
-                                        this.JacketImage = new BitmapImage(new Uri(o.Object202));
-                                        this.JacketImageStr = o.Object202;
-                                    }
-                                    else
-                                    {
-                                        this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
-                                        this.JacketImageStr = "";
-                                    }
-                                }));
+                                        found = true;
+                                        if(this.CurrentObject == o)
+                                        {
+                                            return;
+                                        }
+                                        this.Title = "X-NowPlaying - " + o.ObjectName;
+                                        this.Music = o.ObjectName;
+                                        this.Album = o.Object206;
+                                        this.Artist = o.Object201;
+                                        if (!String.IsNullOrEmpty(o.Object202))
+                                        {
+                                            this.JacketImage = new BitmapImage(new Uri(o.Object202));
+                                            this.JacketImageStr = o.Object202;
+                                        }
+                                        else
+                                        {
+                                            this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
+                                            this.JacketImageStr = "";
+                                        }
+                                        this.CurrentObject = o;
+                                        Console.WriteLine("Update View.");
+                                    }));
+                                }
+                            }
                         }
                     });
                 if(found)

@@ -109,7 +109,7 @@ namespace X_NowPlaying.Win32
                         try
                         {
                             string name = Process.GetProcessById(processInfo[i].Process.dwPeocessId).ProcessName;
-                            if (name.Equals("x-APPLICATION") || name.Equals("xUnited"))
+                            if (name.Equals("x-APPLICATION")/* || name.Equals("xUnited")*/)
                             {
                                 flag = true;
                                 break;

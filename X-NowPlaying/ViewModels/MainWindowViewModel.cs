@@ -96,7 +96,6 @@ namespace X_NowPlaying.ViewModels
                 list.Add(obj);
                 i++;
             }
-
             //5sec interval
             this.timer = new Timer(Update, null, 0, 1000 * 5);
         }
@@ -222,7 +221,7 @@ namespace X_NowPlaying.ViewModels
             await Task.Run(() =>
                 {
                     string tweet = this.GenerateText();
-                    if(tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr))
+                    if(tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
                     {
                         tweet = tweet.Replace("%{image}", "");
                         this.TwitterTokens.Statuses.UpdateWithMedia(status => tweet, media => System.IO.File.OpenRead(this.JacketImageStr));
@@ -267,9 +266,8 @@ namespace X_NowPlaying.ViewModels
             await Task.Run(() =>
                 {
                     string tweet = this.GenerateText();
-                    if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr))
+                    if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
                     {
-                        System.Windows.MessageBox.Show(this.JacketImageStr);
                         tweet = tweet.Replace("%{image}", "");
                         this.CroudiaAccountProvider.UpdateStatusWithMedia(tweet, this.JacketImageStr);
                     }

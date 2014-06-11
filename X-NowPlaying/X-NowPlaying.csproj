@@ -148,6 +148,7 @@
     <Content Include="InfrastructureAssemblies\Livet.XML" />
     <Content Include="InfrastructureAssemblies\Microsoft.Expression.Interactions.dll" />
     <Content Include="InfrastructureAssemblies\System.Windows.Interactivity.dll" />
+    <Resource Include="LICENSE.txt" />
     <Resource Include="Resources\cat_black_32.png" />
     <Resource Include="Resources\bird_blue_32.png" />
     <Resource Include="Resources\settings20.png" />

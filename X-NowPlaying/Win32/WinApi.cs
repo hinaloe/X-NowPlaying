@@ -75,7 +75,7 @@ namespace X_NowPlaying.Win32
             bool flag = false;
 
             int rv = RmStartSession(out sessionHandle, 0, Guid.NewGuid().ToString("N"));
-            if(rv != 0)
+            if (rv != 0)
             {
                 throw new Win32Exception();
             }
@@ -85,7 +85,7 @@ namespace X_NowPlaying.Win32
                 string[] pathStrings = new string[filePaths.Count];
                 filePaths.CopyTo(pathStrings, 0);
                 rv = RmRegisterResources(sessionHandle, (uint)pathStrings.Length, pathStrings, 0, null, 0, null);
-                if(rv != 0)
+                if (rv != 0)
                 {
                     throw new Win32Exception();
                 }
@@ -93,18 +93,18 @@ namespace X_NowPlaying.Win32
                 const int ERROR_MORE_DATA = 234;
                 uint pnProcInfoNeeded = 0, pnProcInfo = 0, lpdwRebootReasons = RmRebootReasonNone;
                 rv = RmGetList(sessionHandle, out pnProcInfoNeeded, ref pnProcInfo, null, ref lpdwRebootReasons);
-                if(rv == ERROR_MORE_DATA)
+                if (rv == ERROR_MORE_DATA)
                 {
                     RM_PROCESS_INFO[] processInfo = new RM_PROCESS_INFO[pnProcInfoNeeded];
                     pnProcInfo = (uint)processInfo.Length;
 
                     rv = RmGetList(sessionHandle, out pnProcInfoNeeded, ref pnProcInfo, processInfo, ref lpdwRebootReasons);
-                    if(rv != 0)
+                    if (rv != 0)
                     {
                         throw new Win32Exception();
                     }
 
-                    for(int i = 0; i < pnProcInfo; i++)
+                    for (int i = 0; i < pnProcInfo; i++)
                     {
                         try
                         {
@@ -118,7 +118,7 @@ namespace X_NowPlaying.Win32
                         catch (Exception) { }
                     }
                 }
-                else if(rv != 0)
+                else if (rv != 0)
                 {
                     throw new Win32Exception();
                 }

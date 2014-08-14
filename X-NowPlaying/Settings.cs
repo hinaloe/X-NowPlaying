@@ -20,11 +20,28 @@ namespace X_NowPlaying
 
         public static string CroudiaAccessToken { set; get; }
 
-        public static string CroudiaRefreshToken { set; get; }
+        public static string _CroudiaRefreshToken;
+        public static string CroudiaRefreshToken
+        {
+            set
+            {
+                if (Equals(_CroudiaRefreshToken, value) || String.IsNullOrEmpty(value))
+                    return;
+
+                _CroudiaRefreshToken = value;
+                Settings.Save();
+            }
+            get
+            {
+                return _CroudiaRefreshToken;
+            }
+        }
 
         public static string CroudiaScreenName { set; get; }
 
         public static bool IsTopLevel { set; get; }
+
+        public static bool AutoTweet { set; get; }
 
         public static string TwitterConsumerKey
         {
@@ -61,9 +78,10 @@ namespace X_NowPlaying
                             TwitterAccessTokenSecet = (string)p.Element("TwitterAccessTokenSecret"),
                             TwitterScreenName = (string)p.Element("TwitterScreenName"),
                             TextFormat = (string)p.Element("TextFormat"),
-                            IsTopLevel = Boolean.Parse((string)p.Element("IsTopLevel"))
+                            IsTopLevel = Boolean.Parse((string)p.Element("IsTopLevel")),
+                            AutoTweet = p.Element("AutoTweet") == null ? false : Boolean.Parse((string)p.Element("AutoTweet"))
                         };
-                foreach(var item in q)
+                foreach (var item in q)
                 {
                     Settings.TextFormat = item.TextFormat;
                     Settings.TwitterAccessToken = item.TwitterAceessToken;
@@ -73,8 +91,10 @@ namespace X_NowPlaying
                     Settings.CroudiaRefreshToken = item.CroudiaRefreshToken;
                     Settings.CroudiaScreenName = item.CroudiaScreenName;
                     Settings.IsTopLevel = item.IsTopLevel;
+                    Settings.AutoTweet = item.AutoTweet;
                 }
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 Settings.TextFormat = "%{song} - %{artist} / %{album} #NowPlaying";
                 Settings.TwitterAccessToken = "";
@@ -84,6 +104,7 @@ namespace X_NowPlaying
                 Settings.CroudiaRefreshToken = "";
                 Settings.CroudiaScreenName = "";
                 Settings.IsTopLevel = false;
+                Settings.AutoTweet = false;
             }
         }
 
@@ -104,6 +125,7 @@ namespace X_NowPlaying
             xw.WriteElementString("CroudiaScreenName", Settings.CroudiaScreenName);
             xw.WriteElementString("TextFormat", Settings.TextFormat);
             xw.WriteElementString("IsTopLevel", Settings.IsTopLevel.ToString());
+            xw.WriteElementString("AutoTweet", Settings.AutoTweet.ToString());
             xw.WriteEndElement();
             xw.WriteEndElement();
             xw.Close();

@@ -43,6 +43,7 @@ namespace X_NowPlaying.ViewModels
 
         private List<List<XObject>> parallel = new List<List<XObject>>();
         private XObject CurrentObject = null;
+        private int CurCount = 0;
 
         public MainWindowViewModel()
         {
@@ -56,14 +57,14 @@ namespace X_NowPlaying.ViewModels
             this.CroudiaAccountProvider = new AccountProvider();
             this.CroudiaAccountProvider.ConsumerKey = Settings.CroudiaConsumerKey;
             this.CroudiaAccountProvider.ConsumerSecret = Settings.CroudiaConsumerSecret;
-            if(!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
+            if (!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
             {
                 this.CroudiaAccountProvider.AccessToken = Settings.CroudiaAccessToken;
                 this.CroudiaAccountProvider.RefreshToken = Settings.CroudiaRefreshToken;
             }
 
             //for Twitter
-            if(!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            if (!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
             {
                 this.TwitterTokens = Tokens.Create(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret, Settings.TwitterAccessToken, Settings.TwitterAccessTokenSecet);
             }
@@ -74,7 +75,7 @@ namespace X_NowPlaying.ViewModels
             this.Title = "X-NowPlaying - Loading...";
             this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
             objects = ApplicationData.Load();
-            if(objects == null)
+            if (objects == null)
             {
                 Environment.Exit(0);
             }
@@ -82,49 +83,67 @@ namespace X_NowPlaying.ViewModels
             //25個に分割
             int i = 0;
             List<XObject> list = null;
-            foreach(XObject obj in objects)
+            foreach (XObject obj in objects)
             {
-                if(i == 25)
+                if (i == 25)
                 {
                     parallel.Add(list);
                     i = 0;
                 }
-                if(i == 0)
+                if (i == 0)
                 {
                     list = new List<XObject>();
                 }
                 list.Add(obj);
                 i++;
             }
-            //5sec interval
+            //5 sec interval
             this.timer = new Timer(Update, null, 0, 1000 * 5);
         }
 
         public void Update(object _)
         {
             bool found = false;
-            foreach(List<XObject> list in this.parallel)
+            foreach (List<XObject> list in this.parallel)
             {
                 Task.Run(() =>
                     {
                         List<string> buf = new List<string>();
-                        foreach(XObject obj in list)
+                        foreach (XObject obj in list)
                         {
                             buf.Add(obj.Object500);
                         }
-                        if(WinApi.GetUsingFiles(buf.ToArray<string>()))
+                        if (WinApi.GetUsingFiles(buf.ToArray<string>()))
                         {
-                            foreach(XObject o in list)
+                            foreach (XObject o in list)
                             {
                                 if (WinApi.GetUsingFiles(new string[] { o.Object500 }))
                                 {
                                     DispatcherHelper.UIDispatcher.Invoke(new Action(() =>
                                     {
                                         found = true;
-                                        if(this.CurrentObject == o)
+                                        if (this.CurrentObject == o)
                                         {
+                                            //曲が切り替わってから最低10秒経過した(曲の早送りでのツイートを拒否するため)
+                                            if (CurCount >= 0 && CurCount++ >= 2)
+                                            {
+                                                //自動投稿
+                                                if (Settings.AutoTweet)
+                                                {
+                                                    if (this.CanTweet())
+                                                    {
+                                                        this.Tweet();
+                                                    }
+                                                    if (this.CanWhisper())
+                                                    {
+                                                        this.Whisper();
+                                                    }
+                                                    CurCount = -1;
+                                                }
+                                            }
                                             return;
                                         }
+                                        CurCount = 0;
                                         this.Title = "X-NowPlaying - " + o.ObjectName;
                                         this.Music = o.ObjectName;
                                         this.Album = o.Object206;
@@ -146,7 +165,7 @@ namespace X_NowPlaying.ViewModels
                             }
                         }
                     });
-                if(found)
+                if (found)
                 {
                     break;
                 }
@@ -209,7 +228,7 @@ namespace X_NowPlaying.ViewModels
 
         public bool CanTweet()
         {
-            if(!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            if (!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
             {
                 return true;
             }
@@ -220,16 +239,23 @@ namespace X_NowPlaying.ViewModels
         {
             await Task.Run(() =>
                 {
-                    string tweet = this.GenerateText();
-                    if(tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
+                    try
                     {
-                        tweet = tweet.Replace("%{image}", "");
-                        this.TwitterTokens.Statuses.UpdateWithMedia(status => tweet, media => System.IO.File.OpenRead(this.JacketImageStr));
+                        string tweet = this.GenerateText();
+                        if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
+                        {
+                            tweet = tweet.Replace("%{image}", "");
+                            this.TwitterTokens.Statuses.UpdateWithMedia(status => tweet, media => System.IO.File.OpenRead(this.JacketImageStr));
+                        }
+                        else
+                        {
+                            tweet = tweet.Replace("%{image}", "");
+                            this.TwitterTokens.Statuses.Update(status => tweet);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        tweet = tweet.Replace("%{image}", "");
-                        this.TwitterTokens.Statuses.Update(status => tweet);
+                        Console.WriteLine(e.Message);
                     }
                 });
         }
@@ -265,16 +291,23 @@ namespace X_NowPlaying.ViewModels
         {
             await Task.Run(() =>
                 {
-                    string tweet = this.GenerateText();
-                    if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
+                    try
                     {
-                        tweet = tweet.Replace("%{image}", "");
-                        this.CroudiaAccountProvider.UpdateStatusWithMedia(tweet, this.JacketImageStr);
+                        string tweet = this.GenerateText();
+                        if (tweet.Contains("%{image}") && !String.IsNullOrEmpty(this.JacketImageStr) && System.IO.File.Exists(this.JacketImageStr))
+                        {
+                            tweet = tweet.Replace("%{image}", "");
+                            this.CroudiaAccountProvider.UpdateStatusWithMedia(tweet, this.JacketImageStr);
+                        }
+                        else
+                        {
+                            tweet = tweet.Replace("%{image}", "");
+                            this.CroudiaAccountProvider.UpdateStatus(tweet);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        tweet = tweet.Replace("%{image}", "");
-                        this.CroudiaAccountProvider.UpdateStatus(tweet);
+                        Console.WriteLine(e.Message);
                     }
                 });
         }
@@ -289,7 +322,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _Title; }
             set
-            { 
+            {
                 if (_Title == value)
                     return;
                 _Title = value;
@@ -307,7 +340,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _IsTopmost; }
             set
-            { 
+            {
                 if (_IsTopmost == value)
                     return;
                 _IsTopmost = value;
@@ -343,7 +376,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _JacketImageStr; }
             set
-            { 
+            {
                 if (_JacketImageStr == value)
                     return;
                 _JacketImageStr = value;
@@ -361,7 +394,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _Music; }
             set
-            { 
+            {
                 if (_Music == value)
                     return;
                 _Music = value;
@@ -379,7 +412,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _Album; }
             set
-            { 
+            {
                 if (_Album == value)
                     return;
                 _Album = value;
@@ -397,7 +430,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _Artist; }
             set
-            { 
+            {
                 if (_Artist == value)
                     return;
                 _Artist = value;

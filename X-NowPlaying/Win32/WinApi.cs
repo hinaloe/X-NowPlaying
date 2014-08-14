@@ -31,7 +31,8 @@ namespace X_NowPlaying.Win32
         struct RM_UNIQUE_PROCESS
         {
             public int dwPeocessId;
-            public FILETIME ProcessStartTime;
+            //public FILETIME ProcessStartTime;
+            public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

@@ -30,7 +30,8 @@ namespace X_NowPlaying.ViewModels
         public void Initialize()
         {
             this.TextFormat = Settings.TextFormat;
-            if(String.IsNullOrEmpty(Settings.TwitterScreenName))
+            this.IsAutoTweet = Settings.AutoTweet;
+            if (String.IsNullOrEmpty(Settings.TwitterScreenName))
             {
                 this.TwitterScreenName = "Not Connected";
             }
@@ -39,7 +40,7 @@ namespace X_NowPlaying.ViewModels
                 this.TwitterScreenName = "@" + Settings.TwitterScreenName;
             }
 
-            if(String.IsNullOrEmpty(Settings.CroudiaScreenName))
+            if (String.IsNullOrEmpty(Settings.CroudiaScreenName))
             {
                 this.CroudiaScreenName = "Not Connected";
             }
@@ -139,6 +140,7 @@ namespace X_NowPlaying.ViewModels
         public void OK()
         {
             Settings.TextFormat = this.TextFormat;
+            Settings.AutoTweet = this.IsAutoTweet;
             Messenger.Raise(new WindowActionMessage(WindowAction.Close, "WindowAction"));
         }
         #endregion
@@ -152,7 +154,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _TextFormat; }
             set
-            { 
+            {
                 if (_TextFormat == value)
                     return;
                 _TextFormat = value;
@@ -171,7 +173,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _TextCount; }
             set
-            { 
+            {
                 if (_TextCount == value)
                     return;
                 _TextCount = value;
@@ -189,7 +191,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _TwitterScreenName; }
             set
-            { 
+            {
                 if (_TwitterScreenName == value)
                     return;
                 _TwitterScreenName = value;
@@ -207,7 +209,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _CroudiaScreenName; }
             set
-            { 
+            {
                 if (_CroudiaScreenName == value)
                     return;
                 _CroudiaScreenName = value;
@@ -215,6 +217,25 @@ namespace X_NowPlaying.ViewModels
             }
         }
         #endregion
+
+
+        #region IsAutoTweet変更通知プロパティ
+        private bool _IsAutoTweet;
+
+        public bool IsAutoTweet
+        {
+            get
+            { return _IsAutoTweet; }
+            set
+            {
+                if (_IsAutoTweet == value)
+                    return;
+                _IsAutoTweet = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
 
     }
 }

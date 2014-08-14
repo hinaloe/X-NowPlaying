@@ -6,13 +6,13 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:v="clr-namespace:X_NowPlaying.Views"
         xmlns:vm="clr-namespace:X_NowPlaying.ViewModels"
-        Title="Settings" Height="352" Width="525"
+        Title="Settings" Height="382" Width="525"
         ResizeMode="NoResize"
         WindowStyle="ToolWindow">
        
      <i:Interaction.Triggers>
         <l:InteractionMessageTrigger MessageKey="WindowAction" 
-			Messenger="{Binding Messenger, Mode=OneWay}">
+            Messenger="{Binding Messenger, Mode=OneWay}">
             <l:WindowInteractionMessageAction/>
         </l:InteractionMessageTrigger>
         <i:EventTrigger EventName="ContentRendered">
@@ -41,27 +41,35 @@
                 </TextBlock>
             </Grid>
         </GroupBox>
+        <CheckBox Content="自動でツイートを投稿する" Height="20"
+                  Margin="15,160,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                  IsChecked="{Binding IsAutoTweet}">
+            <CheckBox.LayoutTransform>
+                <ScaleTransform CenterX="0" CenterY="0"
+                                ScaleX="1.10" ScaleY="1.10" />
+            </CheckBox.LayoutTransform>
+        </CheckBox>
         <Image Source="../Resources/bird_blue_32.png" Height="32" Width="32"
-               Margin="10,170,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+               Margin="10,190,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <Button Content="With Twitter" Height="30" Width="120" FontSize="14" 
-                Margin="60,167,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="60,187,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Command="{Binding AuthorizeTwitterCommand}"/>
         <TextBlock Text="Connected Status : " FontSize="14"
-                   Margin="190,172,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                   Margin="190,192,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <TextBlock Text="{Binding TwitterScreenName}" FontSize="14"
-                   Margin="330,172,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                   Margin="330,192,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
         <Image Source="../Resources/cat_black_32.png" Height="32" Width="32"
-               Margin="10,208,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+               Margin="10,228,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <Button Content="With Croudia" Height="30" Width="120" FontSize="14" 
-                Margin="60,207,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                Margin="60,227,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" 
                 Command="{Binding AuthorizeCroudiaCommand}"/>
         <TextBlock Text="Connected Status : " FontSize="14"
-                   Margin="190,212,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                   Margin="190,232,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <TextBlock Text="{Binding CroudiaScreenName}" FontSize="14"
-                   Margin="330,212,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                   Margin="330,232,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-        <TextBlock FontSize="12" Margin="10,250,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <TextBlock FontSize="12" Margin="10,270,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
             X-NowPlaying is under the MIT Lisence. <LineBreak />
             Build with CoreTweet, Dolphin, Json.Net, Livet <LineBreak />
             Icon made by Freepic from Flaticon.com <LineBreak />

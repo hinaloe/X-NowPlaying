@@ -35,9 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreTweet, Version=0.3.0.680, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\CoreTweet\Binary\Nightly\net45\CoreTweet.dll</HintPath>
+    <Reference Include="CoreTweet">
+      <HintPath>bin\Debug\CoreTweet.dll</HintPath>
     </Reference>
     <Reference Include="Dolphin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

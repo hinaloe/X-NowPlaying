@@ -237,6 +237,10 @@ namespace X_NowPlaying.ViewModels
 
         public async void Tweet()
         {
+            if (this.CurrentObject == null)
+            {
+                return;
+            }
             await Task.Run(() =>
                 {
                     try
@@ -289,6 +293,10 @@ namespace X_NowPlaying.ViewModels
 
         public async void Whisper()
         {
+            if (this.CurrentObject == null)
+            {
+                return;
+            }
             await Task.Run(() =>
                 {
                     try

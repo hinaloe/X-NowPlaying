@@ -44,14 +44,14 @@ namespace X_NowPlaying.ViewModels
 
         public void Initialize()
         {
-            if(this.ServiceType == Internal.ServiceType.Twitter)
+            if (this.ServiceType == Internal.ServiceType.Twitter)
             {
                 this.OAuthSession = CoreTweet.OAuth.Authorize(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret);
                 Process.Start(this.OAuthSession.AuthorizeUri.ToString());
             }
             else
             {
-                Process.Start(this.MainWindowViewModel.CroudiaAccountProvider.GetAuthorizeUrl("nx3nh6fzjcns"));
+                Process.Start(this.MainWindowViewModel.CroudiaAccountProvider.GetAuthorizeUrl("XPQJsHFGgFdh"));
             }
         }
 
@@ -73,7 +73,7 @@ namespace X_NowPlaying.ViewModels
 
         public bool CanAuth()
         {
-            if(this.PinCode.Length == 7)
+            if (this.PinCode.Length == 7)
             {
                 return true;
             }
@@ -84,7 +84,7 @@ namespace X_NowPlaying.ViewModels
         {
             await Task.Run(() =>
                 {
-                    if(this.ServiceType == Internal.ServiceType.Twitter)
+                    if (this.ServiceType == Internal.ServiceType.Twitter)
                     {
                         this.MainWindowViewModel.TwitterTokens = CoreTweet.OAuth.GetTokens(this.OAuthSession, this.PinCode);
                         Settings.TwitterAccessToken = this.MainWindowViewModel.TwitterTokens.AccessToken;
@@ -97,7 +97,10 @@ namespace X_NowPlaying.ViewModels
                         HttpWebResponse response = null;
                         try
                         {
+                            // Deprecated
+                            // Use "https://api.tuyapin.net".
                             request = (HttpWebRequest)WebRequest.Create("http://api.tuyapin.net/starfish/accesstoken.php?code=" + this.PinCode);
+                            //request = (HttpWebRequest)WebRequest.Create("https://api.tuyapin.net/oauth/accesstoken.php?code=" + this.PinCode);
                             request.Method = "GET";
                             request.ContentType = "application/x-www-form-urlencoded";
 
@@ -134,7 +137,7 @@ namespace X_NowPlaying.ViewModels
             get
             { return _PinCode; }
             set
-            { 
+            {
                 if (_PinCode == value)
                     return;
                 _PinCode = value;

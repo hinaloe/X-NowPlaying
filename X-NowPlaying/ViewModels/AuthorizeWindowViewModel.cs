@@ -99,8 +99,8 @@ namespace X_NowPlaying.ViewModels
                         {
                             // Deprecated
                             // Use "https://api.tuyapin.net".
-                            request = (HttpWebRequest)WebRequest.Create("http://api.tuyapin.net/starfish/accesstoken.php?code=" + this.PinCode);
-                            //request = (HttpWebRequest)WebRequest.Create("https://api.tuyapin.net/oauth/accesstoken.php?code=" + this.PinCode);
+                            //request = (HttpWebRequest)WebRequest.Create("http://api.tuyapin.net/starfish/accesstoken.php?code=" + this.PinCode);
+                            request = (HttpWebRequest)WebRequest.Create("https://api.tuyapin.net/oauth/accesstoken.php?code=" + this.PinCode);
                             request.Method = "GET";
                             request.ContentType = "application/x-www-form-urlencoded";
 

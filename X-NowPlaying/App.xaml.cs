@@ -29,7 +29,7 @@ namespace X_NowPlaying
         {
             //TODO:ロギング処理など
             MessageBox.Show(
-                "不明なエラーが発生しました。アプリケーションを終了します。",
+                ((Exception)e.ExceptionObject).ToString(),
                 "エラー",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);

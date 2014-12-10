@@ -111,11 +111,11 @@ namespace NowPlaying.XApplication.ViewModels
                     {
                         List<string> buf = list1.Select(obj => obj.Object500).ToList();
 
-                        if (WinApi.GetUsingFiles(buf.ToArray<string>()))
+                        if (GetUsingFiles(buf.ToArray<string>()))
                         {
                             foreach (XObject o in list1)
                             {
-                                if (WinApi.GetUsingFiles(new[] { o.Object500 }))
+                                if (GetUsingFiles(new[] { o.Object500 }))
                                 {
                                     var o1 = o;
                                     DispatcherHelper.UIDispatcher.Invoke(() =>
@@ -177,6 +177,68 @@ namespace NowPlaying.XApplication.ViewModels
             tweet = tweet.Replace("%{album}", this.Album);
             tweet = tweet.Replace("%{artist}", this.Artist);
             return tweet;
+        }
+
+        private bool GetUsingFiles(IList<string> filePaths)
+        {
+            uint sessionHandle;
+            bool flag = false;
+
+            int rv = NativeMethods.RmStartSession(out sessionHandle, 0, Guid.NewGuid().ToString("N"));
+            if (rv != 0)
+            {
+                throw new Win32Exception();
+            }
+
+            try
+            {
+                string[] pathStrings = new string[filePaths.Count];
+                filePaths.CopyTo(pathStrings, 0);
+                rv = NativeMethods.RmRegisterResources(sessionHandle, (uint)pathStrings.Length, pathStrings, 0, null, 0, null);
+                if (rv != 0)
+                {
+                    throw new Win32Exception();
+                }
+
+                const int ERROR_MORE_DATA = 234;
+                const uint RmRebootReasonNone = 0;
+                uint pnProcInfoNeeded = 0, pnProcInfo = 0, lpdwRebootReasons = RmRebootReasonNone;
+                rv = NativeMethods.RmGetList(sessionHandle, out pnProcInfoNeeded, ref pnProcInfo, null, ref lpdwRebootReasons);
+                if (rv == ERROR_MORE_DATA)
+                {
+                    RM_PROCESS_INFO[] processInfo = new RM_PROCESS_INFO[pnProcInfoNeeded];
+                    pnProcInfo = (uint)processInfo.Length;
+
+                    rv = NativeMethods.RmGetList(sessionHandle, out pnProcInfoNeeded, ref pnProcInfo, processInfo, ref lpdwRebootReasons);
+                    if (rv != 0)
+                    {
+                        throw new Win32Exception();
+                    }
+
+                    for (int i = 0; i < pnProcInfo; i++)
+                    {
+                        try
+                        {
+                            string name = Process.GetProcessById(processInfo[i].Process.dwProcessId).ProcessName;
+                            if (name.Equals("x-APPLICATION") || name.Equals("x-APPLISMO"))
+                            {
+                                flag = true;
+                                break;
+                            }
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                else if (rv != 0)
+                {
+                    throw new Win32Exception();
+                }
+            }
+            finally
+            {
+                NativeMethods.RmEndSession(sessionHandle);
+            }
+            return flag;
         }
 
 

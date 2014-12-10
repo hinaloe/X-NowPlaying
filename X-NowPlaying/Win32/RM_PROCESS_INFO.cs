@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace NowPlaying.XApplication.Win32
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public class RM_PROCESS_INFO
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct RM_PROCESS_INFO
     {
         public RM_UNIQUE_PROCESS Process;
 

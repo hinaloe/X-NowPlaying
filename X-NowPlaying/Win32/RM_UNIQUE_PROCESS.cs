@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace NowPlaying.XApplication.Win32
 {
     [StructLayout(LayoutKind.Sequential)]
-    public class RM_UNIQUE_PROCESS
+    public struct RM_UNIQUE_PROCESS
     {
         public int dwProcessId;
 

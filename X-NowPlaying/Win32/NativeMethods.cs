@@ -18,13 +18,13 @@ namespace NowPlaying.XApplication.Win32
         [DllImport("rstrtmgr", CharSet = CharSet.Unicode)]
         public static extern int RmStartSession(out uint pSessionHandle, int dwSessionFlags, string strSessionKey);
 
-        [DllImport("rstrtmgr", CharSet = CharSet.Unicode)]
+        [DllImport("rstrtmgr")]
         public static extern int RmEndSession(uint pSessionHandle);
 
         [DllImport("rstrtmgr", CharSet = CharSet.Unicode)]
         public static extern int RmRegisterResources(uint pSessionHandle, UInt32 nFiles, string[] rgsFileNames, UInt32 nApplications, [In] RM_UNIQUE_PROCESS[] rgApplications, UInt32 nServices, string[] rgsServiceNames);
 
-        [DllImport("rstrtmgr", CharSet = CharSet.Unicode)]
+        [DllImport("rstrtmgr")]
         public static extern int RmGetList(uint dwSessionHandle, out uint pnProcInfoNeeded, ref uint pnProcInfo, [In, Out] RM_PROCESS_INFO[] rgAffectedApps, ref uint lpdwRebootReasons);
     }
 }

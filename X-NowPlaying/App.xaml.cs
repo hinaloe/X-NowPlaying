@@ -7,8 +7,6 @@ using System.Windows;
 
 using Livet;
 
-using Microsoft.Win32;
-
 using NowPlaying.XApplication.Settings;
 
 namespace NowPlaying.XApplication

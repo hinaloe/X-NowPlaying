@@ -101,7 +101,6 @@
     <Compile Include="Win32\RM_PROCESS_INFO.cs" />
     <Compile Include="Win32\RM_UNIQUE_PROCESS.cs" />
     <Compile Include="Win32\SW.cs" />
-    <Compile Include="Win32\WinApi.cs" />
     <Compile Include="Win32\WINDOWPLACEMENT.cs" />
     <Page Include="Views\AuthorizeWindow.xaml">
       <SubType>Designer</SubType>

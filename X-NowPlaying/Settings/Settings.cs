@@ -6,10 +6,18 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace X_NowPlaying
+namespace NowPlaying.XApplication.Settings
 {
-    public class Settings
+    public static class Settings
     {
+
+        private static ApplicationInternalSettings _internalSettings;
+
+        public static ApplicationInternalSettings ApplicationInternalSettings
+        {
+            get { return _internalSettings; }
+        }
+
         public static string TextFormat { set; get; }
 
         public static string TwitterAccessToken { set; get; }
@@ -20,20 +28,20 @@ namespace X_NowPlaying
 
         public static string CroudiaAccessToken { set; get; }
 
-        public static string _CroudiaRefreshToken;
+        private static string _croudiaRefreshToken;
         public static string CroudiaRefreshToken
         {
             set
             {
-                if (Equals(_CroudiaRefreshToken, value) || String.IsNullOrEmpty(value))
+                if (Equals(_croudiaRefreshToken, value) || String.IsNullOrEmpty(value))
                     return;
 
-                _CroudiaRefreshToken = value;
+                _croudiaRefreshToken = value;
                 Settings.Save();
             }
             get
             {
-                return _CroudiaRefreshToken;
+                return _croudiaRefreshToken;
             }
         }
 
@@ -65,6 +73,10 @@ namespace X_NowPlaying
 
         public static void Load()
         {
+            _internalSettings = new ApplicationInternalSettings();
+            _internalSettings.Upgrade();
+            _internalSettings.Reload();
+
             try
             {
                 var element = XElement.Load(System.IO.Directory.GetCurrentDirectory() + "\\settings.xml");
@@ -79,7 +91,7 @@ namespace X_NowPlaying
                             TwitterScreenName = (string)p.Element("TwitterScreenName"),
                             TextFormat = (string)p.Element("TextFormat"),
                             IsTopLevel = Boolean.Parse((string)p.Element("IsTopLevel")),
-                            AutoTweet = p.Element("AutoTweet") == null ? false : Boolean.Parse((string)p.Element("AutoTweet"))
+                            AutoTweet = p.Element("AutoTweet") != null && Boolean.Parse((string)p.Element("AutoTweet"))
                         };
                 foreach (var item in q)
                 {
@@ -110,6 +122,8 @@ namespace X_NowPlaying
 
         public static void Save()
         {
+            _internalSettings.Save();
+
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = "    ";

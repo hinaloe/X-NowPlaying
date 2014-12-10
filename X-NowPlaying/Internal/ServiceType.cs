@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace X_NowPlaying.Internal
+namespace NowPlaying.XApplication.Internal
 {
     public enum ServiceType
     {

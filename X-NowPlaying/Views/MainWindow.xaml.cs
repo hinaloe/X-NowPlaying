@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using X_NowPlaying.Views;
+using NowPlaying.XApplication.Settings;
+using NowPlaying.XApplication.Views;
+using NowPlaying.XApplication.Win32;
 
-namespace X_NowPlaying.Views
+namespace NowPlaying.XApplication.Views
 {
     /* 
      * ViewModelからの変更通知などの各種イベントを受け取る場合は、PropertyChangedWeakEventListenerや
@@ -35,8 +40,39 @@ namespace X_NowPlaying.Views
 
             this.Loaded += (sender, e) =>
             {
-                ((X_NowPlaying.ViewModels.MainWindowViewModel)this.DataContext).Window = this;
+                ((ViewModels.MainWindowViewModel)this.DataContext).Window = this;
             };
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            if (Settings.Settings.ApplicationInternalSettings.Placement.HasValue)
+            {
+                var hwnd = new WindowInteropHelper(this).Handle;
+                var placement = Settings.Settings.ApplicationInternalSettings.Placement.Value;
+                placement.Length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+                placement.Flags = 0;
+                placement.ShowCmd = placement.ShowCmd == (int)SW.SHOWMINIMIZED ? (int)SW.SHOWNORMAL : placement.ShowCmd;
+
+                NativeMethods.SetWindowPlacement(hwnd, ref placement);
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            if (!e.Cancel)
+            {
+                WINDOWPLACEMENT placement;
+                var hwnd = new WindowInteropHelper(this).Handle;
+                NativeMethods.GetWindowPlacement(hwnd, out placement);
+
+                Settings.Settings.ApplicationInternalSettings.Placement = placement;
+            }
+            Settings.Settings.Save();
         }
     }
 }

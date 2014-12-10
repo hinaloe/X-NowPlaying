@@ -11,42 +11,42 @@ using Livet.Messaging.IO;
 using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
-using X_NowPlaying.Models;
-using X_NowPlaying.Views;
+using NowPlaying.XApplication.Models;
+using NowPlaying.XApplication.Views;
 
-namespace X_NowPlaying.ViewModels
+namespace NowPlaying.XApplication.ViewModels
 {
     public class SettingDialogViewModel : ViewModel
     {
 
         public SettingDialog Dialog;
-        private MainWindowViewModel main;
+        private readonly MainWindowViewModel _mainWindowViewModel;
 
         public SettingDialogViewModel(MainWindowViewModel main)
         {
-            this.main = main;
+            this._mainWindowViewModel = main;
         }
 
         public void Initialize()
         {
-            this.TextFormat = Settings.TextFormat;
-            this.IsAutoTweet = Settings.AutoTweet;
-            if (String.IsNullOrEmpty(Settings.TwitterScreenName))
+            this.TextFormat = Settings.Settings.TextFormat;
+            this.IsAutoTweet = Settings.Settings.AutoTweet;
+            if (String.IsNullOrEmpty(Settings.Settings.TwitterScreenName))
             {
                 this.TwitterScreenName = "Not Connected";
             }
             else
             {
-                this.TwitterScreenName = "@" + Settings.TwitterScreenName;
+                this.TwitterScreenName = "@" + Settings.Settings.TwitterScreenName;
             }
 
-            if (String.IsNullOrEmpty(Settings.CroudiaScreenName))
+            if (String.IsNullOrEmpty(Settings.Settings.CroudiaScreenName))
             {
                 this.CroudiaScreenName = "Not Connected";
             }
             else
             {
-                this.CroudiaScreenName = "@" + Settings.CroudiaScreenName;
+                this.CroudiaScreenName = "@" + Settings.Settings.CroudiaScreenName;
             }
         }
 
@@ -68,19 +68,19 @@ namespace X_NowPlaying.ViewModels
         public void AuthorizeTwitter()
         {
             AuthorizeWindow window = new AuthorizeWindow();
-            AuthorizeWindowViewModel viewmodel = new AuthorizeWindowViewModel(this.main, Internal.ServiceType.Twitter);
+            AuthorizeWindowViewModel viewmodel = new AuthorizeWindowViewModel(this._mainWindowViewModel, Internal.ServiceType.Twitter);
             window.DataContext = viewmodel;
             window.Owner = this.Dialog;
             window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             window.ShowDialog();
 
-            if (String.IsNullOrEmpty(Settings.TwitterScreenName))
+            if (String.IsNullOrEmpty(Settings.Settings.TwitterScreenName))
             {
                 this.TwitterScreenName = "Not Connected";
             }
             else
             {
-                this.TwitterScreenName = "@" + Settings.TwitterScreenName;
+                this.TwitterScreenName = "@" + Settings.Settings.TwitterScreenName;
             }
         }
         #endregion
@@ -104,19 +104,19 @@ namespace X_NowPlaying.ViewModels
         public void AuthorizeCroudia()
         {
             AuthorizeWindow window = new AuthorizeWindow();
-            AuthorizeWindowViewModel viewmodel = new AuthorizeWindowViewModel(this.main, Internal.ServiceType.Croudia);
+            AuthorizeWindowViewModel viewmodel = new AuthorizeWindowViewModel(this._mainWindowViewModel, Internal.ServiceType.Croudia);
             window.DataContext = viewmodel;
             window.Owner = this.Dialog;
             window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
             window.ShowDialog();
 
-            if (String.IsNullOrEmpty(Settings.CroudiaScreenName))
+            if (String.IsNullOrEmpty(Settings.Settings.CroudiaScreenName))
             {
                 this.CroudiaScreenName = "Not Connected";
             }
             else
             {
-                this.CroudiaScreenName = "@" + Settings.CroudiaScreenName;
+                this.CroudiaScreenName = "@" + Settings.Settings.CroudiaScreenName;
             }
         }
         #endregion
@@ -139,8 +139,8 @@ namespace X_NowPlaying.ViewModels
 
         public void OK()
         {
-            Settings.TextFormat = this.TextFormat;
-            Settings.AutoTweet = this.IsAutoTweet;
+            Settings.Settings.TextFormat = this.TextFormat;
+            Settings.Settings.AutoTweet = this.IsAutoTweet;
             Messenger.Raise(new WindowActionMessage(WindowAction.Close, "WindowAction"));
         }
         #endregion

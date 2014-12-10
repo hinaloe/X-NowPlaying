@@ -9,7 +9,9 @@ using Livet;
 
 using Microsoft.Win32;
 
-namespace X_NowPlaying
+using NowPlaying.XApplication.Settings;
+
+namespace NowPlaying.XApplication
 {
     /// <summary>
     /// App.xaml の相互作用ロジック
@@ -19,7 +21,7 @@ namespace X_NowPlaying
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             DispatcherHelper.UIDispatcher = Dispatcher;
-            Settings.Load();
+            Settings.Settings.Load();
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
         }
@@ -33,13 +35,13 @@ namespace X_NowPlaying
                 "エラー",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
-            Settings.Save();
+            Settings.Settings.Load();
             Environment.Exit(1);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Settings.Save();
+            Settings.Settings.Load();
             base.OnExit(e);
         }
     }

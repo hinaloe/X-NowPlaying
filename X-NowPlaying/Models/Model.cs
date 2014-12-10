@@ -5,7 +5,7 @@ using System.Text;
 
 using Livet;
 
-namespace X_NowPlaying.Models
+namespace NowPlaying.XApplication.Models
 {
     public class Model : NotificationObject
     {

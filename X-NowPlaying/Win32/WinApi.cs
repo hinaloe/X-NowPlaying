@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace X_NowPlaying.Win32
+namespace NowPlaying.XApplication.Win32
 {
     public class WinApi
     {

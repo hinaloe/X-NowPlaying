@@ -7,12 +7,12 @@ using System.Windows;
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("X_NowPlaying")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("NowPlaying for x-APPLICATION")]
+[assembly: AssemblyDescription("NowPlaying for x-APPLICATION")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("tuyapin.net")]
 [assembly: AssemblyProduct("X_NowPlaying")]
-[assembly: AssemblyCopyright("Copyright c  2011")]
+[assembly: AssemblyCopyright("Copyright © 2014 tuyapin")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

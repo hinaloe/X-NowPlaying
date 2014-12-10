@@ -17,10 +17,10 @@ using Livet.Messaging.IO;
 using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
-using X_NowPlaying.Models;
-using X_NowPlaying.Views;
-using X_NowPlaying.Win32;
-using X_NowPlaying.Internal;
+using NowPlaying.XApplication.Models;
+using NowPlaying.XApplication.Views;
+using NowPlaying.XApplication.Win32;
+using NowPlaying.XApplication.Internal;
 
 using Dolphin.Croudia;
 using Dolphin.Croudia.Object;
@@ -29,25 +29,25 @@ using Dolphin.Croudia.Rest;
 using CoreTweet;
 using CoreTweet.Rest;
 
-namespace X_NowPlaying.ViewModels
+namespace NowPlaying.XApplication.ViewModels
 {
     public class MainWindowViewModel : ViewModel
     {
-        private Timer timer;
-        private List<XObject> objects;
+        private Timer _timer;
+        private List<XObject> _objects;
 
         public MainWindow Window;
 
-        public AccountProvider CroudiaAccountProvider;
+        public readonly AccountProvider CroudiaAccountProvider;
         public Tokens TwitterTokens;
 
-        private List<List<XObject>> parallel = new List<List<XObject>>();
-        private XObject CurrentObject = null;
-        private int CurCount = 0;
+        private readonly List<List<XObject>> _parallel = new List<List<XObject>>();
+        private XObject _currentObject;
+        private int _curCount;
 
         public MainWindowViewModel()
         {
-            this.IsTopmost = Settings.IsTopLevel;
+            this.IsTopmost = Settings.Settings.IsTopLevel;
             this.Title = "X-NowPlaying";
             this.Music = "Loading...";
             this.Album = "Loading...";
@@ -55,18 +55,18 @@ namespace X_NowPlaying.ViewModels
 
             //for Croudia
             this.CroudiaAccountProvider = new AccountProvider();
-            this.CroudiaAccountProvider.ConsumerKey = Settings.CroudiaConsumerKey;
-            this.CroudiaAccountProvider.ConsumerSecret = Settings.CroudiaConsumerSecret;
-            if (!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
+            this.CroudiaAccountProvider.ConsumerKey = Settings.Settings.CroudiaConsumerKey;
+            this.CroudiaAccountProvider.ConsumerSecret = Settings.Settings.CroudiaConsumerSecret;
+            if (!String.IsNullOrEmpty(Settings.Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.Settings.CroudiaRefreshToken))
             {
-                this.CroudiaAccountProvider.AccessToken = Settings.CroudiaAccessToken;
-                this.CroudiaAccountProvider.RefreshToken = Settings.CroudiaRefreshToken;
+                this.CroudiaAccountProvider.AccessToken = Settings.Settings.CroudiaAccessToken;
+                this.CroudiaAccountProvider.RefreshToken = Settings.Settings.CroudiaRefreshToken;
             }
 
             //for Twitter
-            if (!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            if (!String.IsNullOrEmpty(Settings.Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.Settings.TwitterAccessTokenSecet))
             {
-                this.TwitterTokens = Tokens.Create(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret, Settings.TwitterAccessToken, Settings.TwitterAccessTokenSecet);
+                this.TwitterTokens = Tokens.Create(Settings.Settings.TwitterConsumerKey, Settings.Settings.TwitterConsumerSecret, Settings.Settings.TwitterAccessToken, Settings.Settings.TwitterAccessTokenSecet);
             }
         }
 
@@ -74,8 +74,8 @@ namespace X_NowPlaying.ViewModels
         {
             this.Title = "X-NowPlaying - Loading...";
             this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
-            objects = ApplicationData.Load();
-            if (objects == null)
+            _objects = ApplicationData.Load();
+            if (_objects == null)
             {
                 Environment.Exit(0);
             }
@@ -83,11 +83,11 @@ namespace X_NowPlaying.ViewModels
             //25個に分割
             int i = 0;
             List<XObject> list = null;
-            foreach (XObject obj in objects)
+            foreach (XObject obj in _objects)
             {
                 if (i == 25)
                 {
-                    parallel.Add(list);
+                    _parallel.Add(list);
                     i = 0;
                 }
                 if (i == 0)
@@ -98,37 +98,36 @@ namespace X_NowPlaying.ViewModels
                 i++;
             }
             //5 sec interval
-            this.timer = new Timer(Update, null, 0, 1000 * 5);
+            this._timer = new Timer(Update, null, 0, 1000 * 5);
         }
 
         public void Update(object _)
         {
             bool found = false;
-            foreach (List<XObject> list in this.parallel)
+            foreach (List<XObject> list in this._parallel)
             {
+                var list1 = list;
                 Task.Run(() =>
                     {
-                        List<string> buf = new List<string>();
-                        foreach (XObject obj in list)
-                        {
-                            buf.Add(obj.Object500);
-                        }
+                        List<string> buf = list1.Select(obj => obj.Object500).ToList();
+
                         if (WinApi.GetUsingFiles(buf.ToArray<string>()))
                         {
-                            foreach (XObject o in list)
+                            foreach (XObject o in list1)
                             {
-                                if (WinApi.GetUsingFiles(new string[] { o.Object500 }))
+                                if (WinApi.GetUsingFiles(new[] { o.Object500 }))
                                 {
-                                    DispatcherHelper.UIDispatcher.Invoke(new Action(() =>
+                                    var o1 = o;
+                                    DispatcherHelper.UIDispatcher.Invoke(() =>
                                     {
                                         found = true;
-                                        if (this.CurrentObject == o)
+                                        if (this._currentObject == o1)
                                         {
                                             //曲が切り替わってから最低10秒経過した(曲の早送りでのツイートを拒否するため)
-                                            if (CurCount >= 0 && CurCount++ >= 2)
+                                            if (_curCount >= 0 && _curCount++ >= 2)
                                             {
                                                 //自動投稿
-                                                if (Settings.AutoTweet)
+                                                if (Settings.Settings.AutoTweet)
                                                 {
                                                     if (this.CanTweet())
                                                     {
@@ -138,29 +137,28 @@ namespace X_NowPlaying.ViewModels
                                                     {
                                                         this.Whisper();
                                                     }
-                                                    CurCount = -1;
+                                                    _curCount = -1;
                                                 }
                                             }
                                             return;
                                         }
-                                        CurCount = 0;
-                                        this.Title = "X-NowPlaying - " + o.ObjectName;
-                                        this.Music = o.ObjectName;
-                                        this.Album = o.Object206;
-                                        this.Artist = o.Object201;
-                                        if (!String.IsNullOrEmpty(o.Object202))
+                                        _curCount = 0;
+                                        this.Title = "X-NowPlaying - " + o1.ObjectName;
+                                        this.Music = o1.ObjectName;
+                                        this.Album = o1.Object206;
+                                        this.Artist = o1.Object201;
+                                        if (!String.IsNullOrEmpty(o1.Object202))
                                         {
-                                            this.JacketImage = new BitmapImage(new Uri(o.Object202));
-                                            this.JacketImageStr = o.Object202;
+                                            this.JacketImage = new BitmapImage(new Uri(o1.Object202));
+                                            this.JacketImageStr = o1.Object202;
                                         }
                                         else
                                         {
                                             this.JacketImage = new BitmapImage(new Uri("/Resources/insert2.png", UriKind.Relative));
                                             this.JacketImageStr = "";
                                         }
-                                        this.CurrentObject = o;
-                                        Console.WriteLine("Update View.");
-                                    }));
+                                        this._currentObject = o1;
+                                    });
                                 }
                             }
                         }
@@ -174,7 +172,7 @@ namespace X_NowPlaying.ViewModels
 
         public string GenerateText()
         {
-            string tweet = Settings.TextFormat;
+            string tweet = Settings.Settings.TextFormat;
             tweet = tweet.Replace("%{song}", this.Music);
             tweet = tweet.Replace("%{album}", this.Album);
             tweet = tweet.Replace("%{artist}", this.Artist);
@@ -228,7 +226,7 @@ namespace X_NowPlaying.ViewModels
 
         public bool CanTweet()
         {
-            if (!String.IsNullOrEmpty(Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.TwitterAccessTokenSecet))
+            if (!String.IsNullOrEmpty(Settings.Settings.TwitterAccessToken) && !String.IsNullOrEmpty(Settings.Settings.TwitterAccessTokenSecet))
             {
                 return true;
             }
@@ -237,7 +235,7 @@ namespace X_NowPlaying.ViewModels
 
         public async void Tweet()
         {
-            if (this.CurrentObject == null)
+            if (this._currentObject == null)
             {
                 return;
             }
@@ -283,7 +281,7 @@ namespace X_NowPlaying.ViewModels
 
         public bool CanWhisper()
         {
-            if (!String.IsNullOrEmpty(Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.CroudiaRefreshToken))
+            if (!String.IsNullOrEmpty(Settings.Settings.CroudiaAccessToken) && !String.IsNullOrEmpty(Settings.Settings.CroudiaRefreshToken))
             {
                 return true;
             }
@@ -293,7 +291,7 @@ namespace X_NowPlaying.ViewModels
 
         public async void Whisper()
         {
-            if (this.CurrentObject == null)
+            if (this._currentObject == null)
             {
                 return;
             }

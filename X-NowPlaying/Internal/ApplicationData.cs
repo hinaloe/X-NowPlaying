@@ -10,9 +10,9 @@ using System.Windows;
 using Microsoft.Win32;
 using Microsoft.VisualBasic.FileIO;
 
-namespace X_NowPlaying.Internal
+namespace NowPlaying.XApplication.Internal
 {
-    public class ApplicationData
+    public static class ApplicationData
     {
         public static List<XObject> Load()
         {
@@ -20,7 +20,7 @@ namespace X_NowPlaying.Internal
             string dbpath = "";
 
             RegistryKey registryKey;
-            if(Environment.Is64BitOperatingSystem)
+            if (Environment.Is64BitOperatingSystem)
             {
                 registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64).OpenSubKey(key);
             }
@@ -29,7 +29,7 @@ namespace X_NowPlaying.Internal
                 registryKey = Registry.LocalMachine.OpenSubKey(key);
             }
 
-            if(registryKey == null)
+            if (registryKey == null)
             {
                 //旧式
                 registryKey = Registry.LocalMachine.OpenSubKey(key);
@@ -37,7 +37,7 @@ namespace X_NowPlaying.Internal
             dbpath = (string)registryKey.GetValue("MetallicData", "");
             registryKey.Close();
 
-            if(String.IsNullOrEmpty(dbpath))
+            if (String.IsNullOrEmpty(dbpath))
             {
                 MessageBox.Show("X-APPLICATIONが正常にインストールされていません。");
                 return null;
@@ -58,8 +58,8 @@ namespace X_NowPlaying.Internal
                 {
                     accessConnection = String.Format("Driver={Microsoft Access Driver (*.mdb)};DBQ={0};", dbpath);
                     connection = new OleDbConnection(accessConnection);
-                } 
-                catch(Exception)
+                }
+                catch (Exception)
                 {
                     MessageBox.Show("Microsoft Data Access ComponentsもしくはMicrosoft Access Driverがインストールされていません。");
                     return null;
@@ -85,7 +85,7 @@ namespace X_NowPlaying.Internal
 
             List<XObject> xobjects = new List<XObject>();
             DataRowCollection collection = ds.Tables["t_object"].Rows;
-            foreach(DataRow row in collection)
+            foreach (DataRow row in collection)
             {
                 var xobj = new XObject(row[2].ToString(), row[69].ToString(), row[70].ToString(), row[74].ToString(), row[111].ToString());
                 xobj.Object100 = row[3].ToString();

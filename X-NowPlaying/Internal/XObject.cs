@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace X_NowPlaying.Internal
+namespace NowPlaying.XApplication.Internal
 {
     public class XObject
     {
@@ -33,7 +33,7 @@ namespace X_NowPlaying.Internal
         /// </summary>
         public string Object500 { private set; get; }
 
-        
+
         // =====================================================================================================
         // Extended
         // -----------------------------------------------------------------------------------------------------

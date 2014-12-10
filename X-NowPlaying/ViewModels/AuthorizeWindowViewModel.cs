@@ -15,8 +15,8 @@ using Livet.Messaging.IO;
 using Livet.EventListeners;
 using Livet.Messaging.Windows;
 
-using X_NowPlaying.Models;
-using X_NowPlaying.Internal;
+using NowPlaying.XApplication.Models;
+using NowPlaying.XApplication.Internal;
 
 using CoreTweet;
 using CoreTweet.Rest;
@@ -27,31 +27,31 @@ using Dolphin.Croudia.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace X_NowPlaying.ViewModels
+namespace NowPlaying.XApplication.ViewModels
 {
     public class AuthorizeWindowViewModel : ViewModel
     {
-        private ServiceType ServiceType;
-        private MainWindowViewModel MainWindowViewModel;
-        private CoreTweet.OAuth.OAuthSession OAuthSession;
+        private readonly ServiceType _serviceType;
+        private readonly MainWindowViewModel _mainWindowViewModel;
+        private CoreTweet.OAuth.OAuthSession _oAuthSession;
 
         public AuthorizeWindowViewModel(MainWindowViewModel main, ServiceType type)
         {
-            this.MainWindowViewModel = main;
-            this.ServiceType = type;
+            this._mainWindowViewModel = main;
+            this._serviceType = type;
             this.PinCode = "";
         }
 
         public void Initialize()
         {
-            if (this.ServiceType == Internal.ServiceType.Twitter)
+            if (this._serviceType == ServiceType.Twitter)
             {
-                this.OAuthSession = CoreTweet.OAuth.Authorize(Settings.TwitterConsumerKey, Settings.TwitterConsumerSecret);
-                Process.Start(this.OAuthSession.AuthorizeUri.ToString());
+                this._oAuthSession = CoreTweet.OAuth.Authorize(Settings.Settings.TwitterConsumerKey, Settings.Settings.TwitterConsumerSecret);
+                Process.Start(this._oAuthSession.AuthorizeUri.ToString());
             }
             else
             {
-                Process.Start(this.MainWindowViewModel.CroudiaAccountProvider.GetAuthorizeUrl("XPQJsHFGgFdh"));
+                Process.Start(this._mainWindowViewModel.CroudiaAccountProvider.GetAuthorizeUrl("XPQJsHFGgFdh"));
             }
         }
 
@@ -84,12 +84,12 @@ namespace X_NowPlaying.ViewModels
         {
             await Task.Run(() =>
                 {
-                    if (this.ServiceType == Internal.ServiceType.Twitter)
+                    if (this._serviceType == Internal.ServiceType.Twitter)
                     {
-                        this.MainWindowViewModel.TwitterTokens = CoreTweet.OAuth.GetTokens(this.OAuthSession, this.PinCode);
-                        Settings.TwitterAccessToken = this.MainWindowViewModel.TwitterTokens.AccessToken;
-                        Settings.TwitterAccessTokenSecet = this.MainWindowViewModel.TwitterTokens.AccessTokenSecret;
-                        Settings.TwitterScreenName = this.MainWindowViewModel.TwitterTokens.Account.VerifyCredentials().ScreenName;
+                        this._mainWindowViewModel.TwitterTokens = CoreTweet.OAuth.GetTokens(this._oAuthSession, this.PinCode);
+                        Settings.Settings.TwitterAccessToken = this._mainWindowViewModel.TwitterTokens.AccessToken;
+                        Settings.Settings.TwitterAccessTokenSecet = this._mainWindowViewModel.TwitterTokens.AccessTokenSecret;
+                        Settings.Settings.TwitterScreenName = this._mainWindowViewModel.TwitterTokens.Account.VerifyCredentials().ScreenName;
                     }
                     else
                     {
@@ -111,12 +111,12 @@ namespace X_NowPlaying.ViewModels
                             sr.Close();
                             stream.Close();
 
-                            JArray o = JArray.Parse(json);
+                            var o = JArray.Parse(json);
 
-                            this.MainWindowViewModel.CroudiaAccountProvider.GetAccessToken((string)o[0]["message"]);
-                            Settings.CroudiaAccessToken = this.MainWindowViewModel.CroudiaAccountProvider.AccessToken;
-                            Settings.CroudiaRefreshToken = this.MainWindowViewModel.CroudiaAccountProvider.RefreshToken;
-                            Settings.CroudiaScreenName = this.MainWindowViewModel.CroudiaAccountProvider.VerifyCredentials().ScreenName;
+                            this._mainWindowViewModel.CroudiaAccountProvider.GetAccessToken((string)o[0]["message"]);
+                            Settings.Settings.CroudiaAccessToken = this._mainWindowViewModel.CroudiaAccountProvider.AccessToken;
+                            Settings.Settings.CroudiaRefreshToken = this._mainWindowViewModel.CroudiaAccountProvider.RefreshToken;
+                            Settings.Settings.CroudiaScreenName = this._mainWindowViewModel.CroudiaAccountProvider.VerifyCredentials().ScreenName;
                         }
                         catch (Exception e)
                         {

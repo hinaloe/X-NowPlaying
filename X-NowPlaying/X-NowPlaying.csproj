@@ -8,7 +8,7 @@
     <ProjectGuid>{E0EE8A21-6FB3-450C-98B9-F1B0DF743007}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>X_NowPlaying</RootNamespace>
+    <RootNamespace>NowPlaying.XApplication</RootNamespace>
     <AssemblyName>X-NowPlaying</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
@@ -83,7 +83,8 @@
     <Compile Include="Internal\ApplicationData.cs" />
     <Compile Include="Internal\ServiceType.cs" />
     <Compile Include="Internal\XObject.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="Settings\Settings.cs" />
+    <Compile Include="Settings\ApplicationInternalSettings.cs" />
     <Compile Include="ViewModels\AuthorizeWindowViewModel.cs" />
     <Compile Include="ViewModels\SettingDialogViewModel.cs" />
     <Compile Include="Views\AuthorizeWindow.xaml.cs">
@@ -92,7 +93,16 @@
     <Compile Include="Views\SettingDialog.xaml.cs">
       <DependentUpon>SettingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Win32\CCH.cs" />
+    <Compile Include="Win32\NativeMethods.cs" />
+    <Compile Include="Win32\POINT.cs" />
+    <Compile Include="Win32\RECT.cs" />
+    <Compile Include="Win32\RM_APP_TYPE.cs" />
+    <Compile Include="Win32\RM_PROCESS_INFO.cs" />
+    <Compile Include="Win32\RM_UNIQUE_PROCESS.cs" />
+    <Compile Include="Win32\SW.cs" />
     <Compile Include="Win32\WinApi.cs" />
+    <Compile Include="Win32\WINDOWPLACEMENT.cs" />
     <Page Include="Views\AuthorizeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -125,21 +135,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
